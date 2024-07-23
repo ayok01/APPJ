@@ -12,7 +12,8 @@ datasource db {
 
 model Article {
   articleId Int @id @default(autoincrement())
-  author   User   @relation(fields: [articleId], references: [id])
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
   articleType Int
   thumbnail String  
   title String?
@@ -25,5 +26,7 @@ model User{
   avater String
   introduction String
   password String
-  article Article[]
+  token String
+
+  articles Article[]
 }
