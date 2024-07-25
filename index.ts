@@ -37,6 +37,21 @@ const generateSessionId = (): string => {
   return result;
 };
 
+app.get("/article/:articleId", async (req: Request, res: Response) => {
+  try {
+    if (Number.isNaN(Number(req.params.articleId))) {
+      return res.status(400).send("Invalid request");
+    }
+    const id = Number(req.params.articleId);
+    const article = await prisma.article.findFirst({
+      where: { articleId: id },
+    });
+    return res.json(article);
+  } catch (e) {
+    return res.status(500).send({ error: e });
+  }
+});
+
 app.get("/articles", async (req: Request, res: Response) => {
   try {
     const articles = await prisma.article.findMany();
