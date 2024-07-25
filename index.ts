@@ -3,15 +3,21 @@ import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 
 // アプリケーションで動作するようにdotenvを設定する
+const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(
+  cors({
+    origin: "http://localhost:3000", //アクセス許可するオリジン
+    credentials: true, //レスポンスヘッダーにAccess-Control-Allow-Credentials追加
+    optionsSuccessStatus: 200, //レスポンスstatusを200に設定
+  }),
   express.urlencoded({
     extended: true,
   })
 );
 
-const port = 3000;
+const port = 8080;
 //データベースオブジェクトの取得
 const prisma = new PrismaClient();
 
@@ -157,6 +163,17 @@ app.get("/users", async (req: Request, res: Response) => {
 });
 
 app.get("/user/:userId", async (req: Request, res: Response) => {
+  //トークン認証
+  if (!req.headers.authorization) {
+    return res.status(401).send("Unauthorized");
+  }
+  const token = req.headers.authorization;
+  const user = await prisma.user.findFirst({
+    where: { token: token },
+  });
+  if (!user) {
+    return res.status(403).send("Forbidden");
+  }
   try {
     if (Number.isNaN(Number(req.params.userId))) {
       console.log(Number(req.params.userId));
