@@ -80,17 +80,20 @@ app.post(
   }
 );
 
-app.get("/images", (req, res, next) => {
-  // 2. fsのメソッドである readdir にて指定ディレクトリ内のデータを配列で取得
-  // readdirSync で同期的に処理を行います。
-  // readdirの非同期では処理が追いつかずエラーが起きます。
-  const images = fs.readdirSync("./public/images/");
-
-  if (images.length >= 0) {
-    // 3. 画像データの配列をビューに渡す
-    res.render("images.ejs", { images: images });
-  } else {
-    console.error("There is something wrong about fs / images!");
+app.get("/image/:imageName", async (req: Request, res: Response) => {
+  try {
+    const { imageName } = req.params;
+    const filePath = path.join(__dirname, `../public/images/${imageName}`);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send("Not found");
+    }
+    fs.readFile(filePath, (err, data) => {
+      res.type("image/jpeg");
+      console.log(data);
+      res.send(data);
+    });
+  } catch (e) {
+    return res.status(500).send({ error: e });
   }
 });
 
@@ -109,7 +112,6 @@ app.post(
       return res.status(403).send("Forbidden");
     }
     try {
-      console.log(req.body);
       if (
         !req.body.thumbnail ||
         !req.body.title ||
