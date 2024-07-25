@@ -21,6 +21,11 @@ const port = 8080;
 //データベースオブジェクトの取得
 const prisma = new PrismaClient();
 
+//ディレクトリがない場合は作成
+if (!fs.existsSync("./public/images/thumbnail")) {
+  fs.mkdirSync("./public/images/thumbnail", { recursive: true });
+}
+
 const path = require("path");
 //Token生成
 const generateSessionId = (): string => {
@@ -62,25 +67,29 @@ app.get("/articles", async (req: Request, res: Response) => {
 });
 
 const multer = require("multer");
+
+const createFileName = (filename: string) => {
+  const date = new Date(
+    new Date().toLocaleString("ja", { timeZone: "Asia/Tokyo" })
+  );
+  return `${date.getFullYear()}${date.getMonth()}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}-${filename}`;
+};
+
 var storage = multer.diskStorage({
-  //ファイルの保存先を指定(ここでは保存先は./public/images)
-  //Express4の仕様かなんかで画像staticなファイルを保存するときはpublic/以下のフォルダに置かないとダメらしい
-  //詳しくは express.static public でググろう！
   destination: function (
     req: any,
     file: any,
     cb: (arg0: null, arg1: string) => void
   ) {
-    cb(null, "./public/images/");
+    cb(null, "./public/images/thumbnail");
   },
-  //ファイル名を指定
-  //ここでは image.jpg という名前で保存
+  // ファイルの拡張子を指定
   filename: function (
     req: any,
     file: any,
     cb: (arg0: null, arg1: string) => void
   ) {
-    cb(null, "image.jpg");
+    cb(null, createFileName(file.originalname));
   },
 });
 
@@ -94,17 +103,21 @@ app.post(
       if (!req.file) {
         return res.status(400).send("Invalid request");
       }
-      return res.json({ path: req.file.path });
+      // ファイル名を返す
+      return res.json({ filename: req.file.filename });
     } catch (e) {
       return res.status(500).send({ error: e });
     }
   }
 );
 
-app.get("/image/:imageName", async (req: Request, res: Response) => {
+app.get("/image/thumbnail/:imageName", async (req: Request, res: Response) => {
   try {
     const { imageName } = req.params;
-    const filePath = path.join(__dirname, `../public/images/${imageName}`);
+    const filePath = path.join(
+      __dirname,
+      `../public/images/thumbnail/${imageName}`
+    );
     if (!fs.existsSync(filePath)) {
       return res.status(404).send("Not found");
     }
