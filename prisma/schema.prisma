@@ -23,6 +23,7 @@ model Article {
 model User{
   id Int @id @default(autoincrement())
   name String 
+  userId String @unique
   avater String
   introduction String
   password String
