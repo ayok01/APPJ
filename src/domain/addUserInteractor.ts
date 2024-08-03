@@ -1,11 +1,11 @@
 import { userRepository } from "../repository/userRepository";
 import type { User } from "./entity/user";
 
-export interface IUserService {
-	addUser(data: Omit<User, "id" | "token">): Promise<User>;
+export interface IAddUserService {
+	addUser(data: Omit<User, "id" >): Promise<User>;
 }
 
-class AddUserService implements IUserService {
+class AddUserService implements IAddUserService {
 	private _LENGTH = 24;
 	private _SOURCE = "abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -19,7 +19,7 @@ class AddUserService implements IUserService {
 	}
 
 	// ユーザーを追加するメソッド
-	public async addUser(data: Omit<User, "id" | "token">): Promise<User> {
+	public async addUser(data: Omit<User, "id">): Promise<User> {
 		const token = this.generateSessionId();
 		return await userRepository.createUser({ ...data, token });
 	}

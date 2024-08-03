@@ -1,6 +1,15 @@
-import type { User } from "../../domain/entity/user";
-import { userRepository } from "../../repository/userRepository";
+import type { IGetUserService } from "../../domain/getUserInteractor";
+import GetUserInteractor from "../../domain/getUserInteractor";
 
-export const getUser = async (id: number): Promise<User | null> => {
-	return await userRepository.findUserById(id);
-};
+
+export const getUser = async (
+	id: number,
+	userService: IGetUserService,
+) => {
+	try {
+		const user = await userService.getUser(id);
+		return user;
+	} catch (error) {
+		console.error("Error getting user:", error);
+	}
+}

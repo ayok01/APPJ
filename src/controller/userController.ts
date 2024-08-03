@@ -4,25 +4,23 @@ import type { User } from "../domain/entity/user";
 import { userRepository } from "../repository/userRepository";
 import { addUser } from "../usecase/user/addUser";
 import { getUser } from "../usecase/user/getUser";
+import getUserService from "../domain/getUserInteractor";
+import GetMeInteractor from "../domain/getMeInteractor";
+import { HttpError } from "../interface_adapters/errors/httpError";
 
 export const userController = {
 	addUser: async (req: Request, res: Response) => {
-		const userData: Omit<User, "id" | "token"> = req.body; // リクエストボディからユーザーデータを取得
+		console.info("req.body", req.body);
+		const userData: Omit<User, "id"> = req.body; // リクエストボディからユーザーデータを取得
 
-		const userService = new AddUserService(); // サービスのインスタンスを作成
-
-		try {
-			const user = await addUser(userData, userService); // ユースケースを呼び出す
+		await addUser(userData).then((user)=>{
 			res.status(201).json(user);
-		} catch (error) {
-			console.error("Error adding user:", error);
-			res
-				.status(500)
-				.json({ error: "An error occurred while adding the user." });
-		}
+		}).catch((e:HttpError) => {
+			res.status(e.statusCode).send({ error: e.message });
+		});
 	},
 
-	getUser: async (req: Request, res: Response) => {
+	getUsers: async (req: Request, res: Response) => {
 		try {
 			const token = req.headers.authorization;
 			if (!token) {
@@ -34,19 +32,44 @@ export const userController = {
 				return res.status(403).send("Forbidden");
 			}
 
-			const id = Number(req.params.userId);
-			if (Number.isNaN(id)) {
-				return res.status(400).send("Invalid ID");
-			}
-
-			const user = await getUser(id);
-			if (!user) {
-				return res.status(404).send("User not found");
-			}
-
-			return res.json(user);
+			const users = await userRepository.findAllUsers();
+			return res.json(users);
 		} catch (e) {
 			return res.status(500).send({ error: e });
 		}
 	},
+
+	getUser: async (req: Request, res: Response) => {
+		const id = Number(req.params.userId);
+		const userService = new getUserService();
+
+		try {
+			const user = await getUser(id, userService);
+			if (!user) {
+				return res.status(404).send("User not found");
+			}
+			return res.json(user);
+		} catch (error) {
+			console.error("Error getting user:", error);
+			return res.status(500).send({ error: "An error occurred while getting the user." });
+		}
+	},
+
+	getMe: async (req: Request, res: Response) => {
+		const userId = req.body.userId;
+		const password = req.body.password;
+		const userService = new GetMeInteractor();
+
+		try {
+			console.info("userId", userId);
+			const user = await userService.getMe(userId, password);
+			if (!user) {
+				return res.status(404).send("User not found");
+			}
+			return res.json(user);
+		} catch (error) {
+			console.error("Error getting user:", error);
+			return res.status(500).send({ error: "An error occurred while getting the user." });
+		}
+	}
 };
