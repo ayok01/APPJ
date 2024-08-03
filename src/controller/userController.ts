@@ -1,23 +1,25 @@
 import type { Request, Response } from "express";
 import AddUserService from "../domain/addUserInteractor";
 import type { User } from "../domain/entity/user";
+import GetMeInteractor from "../domain/getMeInteractor";
+import getUserService from "../domain/getUserInteractor";
+import type { HttpError } from "../interface_adapters/errors/httpError";
 import { userRepository } from "../repository/userRepository";
 import { addUser } from "../usecase/user/addUser";
 import { getUser } from "../usecase/user/getUser";
-import getUserService from "../domain/getUserInteractor";
-import GetMeInteractor from "../domain/getMeInteractor";
-import { HttpError } from "../interface_adapters/errors/httpError";
 
 export const userController = {
 	addUser: async (req: Request, res: Response) => {
 		console.info("req.body", req.body);
 		const userData: Omit<User, "id"> = req.body; // リクエストボディからユーザーデータを取得
 
-		await addUser(userData).then((user)=>{
-			res.status(201).json(user);
-		}).catch((e:HttpError) => {
-			res.status(e.statusCode).send({ error: e.message });
-		});
+		await addUser(userData)
+			.then((user) => {
+				res.status(201).json(user);
+			})
+			.catch((e: HttpError) => {
+				res.status(e.statusCode).send({ error: e.message });
+			});
 	},
 
 	getUsers: async (req: Request, res: Response) => {
@@ -51,7 +53,9 @@ export const userController = {
 			return res.json(user);
 		} catch (error) {
 			console.error("Error getting user:", error);
-			return res.status(500).send({ error: "An error occurred while getting the user." });
+			return res
+				.status(500)
+				.send({ error: "An error occurred while getting the user." });
 		}
 	},
 
@@ -69,7 +73,9 @@ export const userController = {
 			return res.json(user);
 		} catch (error) {
 			console.error("Error getting user:", error);
-			return res.status(500).send({ error: "An error occurred while getting the user." });
+			return res
+				.status(500)
+				.send({ error: "An error occurred while getting the user." });
 		}
-	}
+	},
 };

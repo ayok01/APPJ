@@ -2,7 +2,7 @@ import { userRepository } from "../repository/userRepository";
 import type { User } from "./entity/user";
 
 export interface IAddUserService {
-	addUser(data: Omit<User, "id" >): Promise<User>;
+	addUser(data: Omit<User, "id">): Promise<User>;
 }
 
 class AddUserService implements IAddUserService {
