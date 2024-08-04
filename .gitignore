@@ -10,3 +10,4 @@ dev.db
 *.env*
 *.db
 *.db-journal
+/public

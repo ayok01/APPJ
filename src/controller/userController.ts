@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import AddUserService from "../domain/addUserInteractor";
 import type { User } from "../domain/entity/user";
 import GetMeInteractor from "../domain/getMeInteractor";
 import getUserService from "../domain/getUserInteractor";

@@ -1,5 +1,5 @@
 import type { IGetUserService } from "../../domain/getUserInteractor";
-import GetUserInteractor from "../../domain/getUserInteractor";
+
 
 export const getUser = async (id: number, userService: IGetUserService) => {
 	try {
