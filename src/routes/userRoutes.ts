@@ -9,7 +9,7 @@ const multer = require("multer");
 const uuid = require("uuid");
 
 
-//todo:あとでserviceに移動
+//ここきれいにしろ
 const createFileName = (filename: string) => {
 	const date = new Date(
 		new Date().toLocaleString("ja", { timeZone: "Asia/Tokyo" }),
