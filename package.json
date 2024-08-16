@@ -6,7 +6,10 @@
 	"scripts": {
 		"start": "npx tsc && node dist/src/server.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"prisma": "prisma generate"
+		"prisma": "prisma generate",
+		"format": "npx @biomejs/biome format --write",
+		"lint": "npx @biomejs/biome lint --write",
+		"check": "npx @biomejs/biome check --write"
 	},
 	"keywords": [],
 	"author": "",

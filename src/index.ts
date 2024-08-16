@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import articleRouters from "./routes/articleRoutes";
 import userRoutes from "./routes/userRoutes";
 
 const app = express();
@@ -15,5 +16,6 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(userRoutes);
+app.use(articleRouters);
 
 export default app;
